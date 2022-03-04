@@ -3,7 +3,7 @@
     <div class="current-round">
       <div class="upper-scoreboard">
         <a class="reset-points reset" @click="CRM.resetPoints()"
-          >Resetar pontos</a
+          >Zerar pontos</a
         >
         <a class="reset-points" @click="victoryTeam('A')">Vitória time A</a>
         <a class="reset-points" @click="victoryTeam('B')">Vitória time B</a>

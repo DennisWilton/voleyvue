@@ -26,6 +26,41 @@ function createCurrentRoundManager() {
     }
   };
 
+  self.setTeam = function (team, players) {
+    self.clearTeam(team);
+    switch (team) {
+      case 'A':
+        self.teamA.push(...players);
+        return;
+
+      case 'B':
+        self.teamB.push(...players);
+        return;
+
+      default:
+        return;
+    }
+  };
+
+  self.clearTeam = function (team) {
+    switch (team) {
+      case 'A':
+        self.teamA.splice(0);
+        self.resetPoints();
+        return;
+
+      case 'B':
+        self.teamB.splice(0);
+        self.resetPoints();
+        return;
+
+      default:
+        return;
+    }
+  };
+
+  window.managers = window.managers || {};
+  window.managers.CRM = self;
   return self;
 }
 

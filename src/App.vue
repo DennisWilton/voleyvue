@@ -8,10 +8,18 @@
   padding: 0;
   box-sizing: border-box;
   font-family: Arial, sans-serif;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+body {
+  touch-action: manipulation;
 }
 
 #app {
-  height: 100vh;
+  min-height: 100vh;
   background: #222;
 }
 </style>

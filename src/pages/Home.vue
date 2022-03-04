@@ -2,39 +2,42 @@
   <div id="wrapper">
     <div class="current-round">
       <div class="upper-scoreboard">
-        <a class="reset-points reset" @click="crm.resetPoints()"
+        <a class="reset-points reset" @click="CRM.resetPoints()"
           >Resetar pontos</a
         >
-        <a class="reset-points" @click="crm.resetPoints()">Limpar time A</a>
-        <a class="reset-points" @click="crm.resetPoints()">Limpar time B</a>
+        <a class="reset-points" @click="victoryTeam('A')">Vitória time A</a>
+        <a class="reset-points" @click="victoryTeam('B')">Vitória time B</a>
       </div>
       <div class="current-round__scoreboard">
-        {{ crm.teamAPoints }} &times; {{ crm.teamBPoints }}
+        {{ CRM.teamAPoints }} &times; {{ CRM.teamBPoints }}
       </div>
       <div class="current-round__teams">
         <div class="current-round__team current-round__team--A">
-          <div class="current-round__team__player">Denis A.</div>
-          <div class="current-round__team__player">Alanis A.</div>
-          <div class="current-round__team__player">Comaru M.</div>
-          <div class="current-round__team__player">Marcos V.</div>
-          <div class="current-round__team__player">Kenny R.</div>
+          <div
+            class="current-round__team__player"
+            :key="player.id"
+            v-for="player in CRM.teamA"
+          >
+            {{ player.name }}
+          </div>
         </div>
         <div class="divider"></div>
         <div class="current-round__team current-round__team--B">
-          <div class="current-round__team__player">Ajala J.</div>
-          <div class="current-round__team__player">Lucas I.</div>
-          <div class="current-round__team__player">Vanessa S.</div>
-          <div class="current-round__team__player">Amauri B.</div>
-          <div class="current-round__team__player">Enzio N.</div>
-          <div class="current-round__team__player">Alysson B.</div>
+          <div
+            class="current-round__team__player"
+            :key="player.id"
+            v-for="player in CRM.teamB"
+          >
+            {{ player.name }}
+          </div>
         </div>
       </div>
       <div class="current-round__round-control">
         <div class="current-round__round-control__point-control">
-          <button @click="crm.pointTeam('A', 1)">Ponto Time A</button>
-          <button @click="crm.pointTeam('B', 1)">Ponto Time B</button>
-          <a @click="crm.pointTeam('A', -1)" class="text">Diminuir ponto A</a>
-          <a @click="crm.pointTeam('B', -1)" class="text">Diminuir ponto A</a>
+          <button @click="CRM.pointTeam('A', 1)">Ponto Time A</button>
+          <button @click="CRM.pointTeam('B', 1)">Ponto Time B</button>
+          <a @click="CRM.pointTeam('A', -1)" class="text">Diminuir ponto A</a>
+          <a @click="CRM.pointTeam('B', -1)" class="text">Diminuir ponto A</a>
         </div>
       </div>
     </div>
@@ -42,43 +45,105 @@
     <div class="team-control">
       <div class="first-row">
         <span>Controle de partida</span>
-        <button class="prepare-next-team">Preparar próximo time</button>
+        <div style="display: grid; gap: 10px; grid-auto-flow: column">
+          <button class="prepare-next-team" @click="TM.clearNextTeam()">
+            &times;
+          </button>
+          <button class="prepare-next-team" @click="TM.sortNextTeam()">
+            Próximo time
+          </button>
+        </div>
       </div>
       <div class="team-control__next-team">
-        <div class="team-control__next-team__player">Leandro A.</div>
-        <div class="team-control__next-team__player">Neymar J.</div>
+        <div
+          class="team-control__next-team__player"
+          :key="player.id"
+          v-for="player in TM.nextTeam"
+        >
+          {{ player.distance }} | {{ player.name }}
+        </div>
       </div>
       <div class="team-control__define">
-        <button disabled>Definir como time A</button>
-        <button disabled>Definir como time B</button>
+        <button
+          :disabled="!TM.nextTeam.length && !CRM.teamA.length"
+          @click="
+            CRM.setTeam('A', TM.nextTeam);
+            TM.clearNextTeam();
+          "
+        >
+          {{
+            TM.nextTeam.length
+              ? CRM.teamA.length
+                ? 'Substituir'
+                : 'Definir como'
+              : 'Limpar'
+          }}
+          time A
+        </button>
+        <button
+          :disabled="!TM.nextTeam.length && !CRM.teamB.length"
+          @click="
+            CRM.setTeam('B', TM.nextTeam);
+            TM.clearNextTeam();
+          "
+        >
+          {{
+            TM.nextTeam.length
+              ? CRM.teamB.length
+                ? 'Substituir'
+                : 'Definir como'
+              : 'Limpar'
+          }}
+          time B
+        </button>
       </div>
       <div class="team-control__player-list">
         <button @click="$router.push('/jogadores')" class="add-player">
           Adicionar jogador
         </button>
-        <div class="team-control__player-list__player">[ 2 ] Pedro B.</div>
-        <div class="team-control__player-list__player">[ 2 ] Jessa C.</div>
-        <div class="team-control__player-list__player">[ 2 ] Mizael R.</div>
+        <div
+          class="team-control__player-list__player"
+          :key="player.id"
+          v-for="player in TM.allPlayers.sort(
+            (a, b) => b.distance - a.distance
+          )"
+        >
+          [ {{ player.distance }} ] {{ player.name }}
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import MainManager from '@/manager/MainManager';
+import MM from '@/manager/MainManager';
+import SM from '@/manager/StorageManager';
 import Teams from '@/components/Teams.vue';
-import CurrentRoundManager from '@/manager/CurrentRoundManager';
-import { onMounted } from '@vue/runtime-core';
+import CRM from '@/manager/CurrentRoundManager';
+import TeamManager from '@/manager/TeamManager';
+import _ from 'lodash';
 
 export default {
   name: 'App',
   components: { Teams },
   setup() {
-    onMounted(() => {
-      window.crm = CurrentRoundManager;
-    });
+    function victoryTeam(team) {
+      if (!CRM.teamA.length || !CRM.teamB.length) {
+        return;
+      }
 
-    return { crm: CurrentRoundManager };
+      const eOpposingTeam = {
+        A: 'B',
+        B: 'A',
+      };
+
+      MM.players.forEach((player) => player.distance++);
+      _.union(CRM.teamA, CRM.teamB).forEach((player) => (player.distance = 0));
+      CRM.clearTeam(eOpposingTeam[team]);
+      SM.savePlayers('latest', MM.players);
+    }
+
+    return { CRM, TM: TeamManager, SM, MM, victoryTeam };
   },
 };
 </script>
@@ -132,7 +197,7 @@ export default {
   &__team {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 32.8px);
     text-align: center;
     grid-gap: 5px;
     &__player {
@@ -223,7 +288,7 @@ export default {
     padding: 10px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 32.8px);
     text-align: center;
     grid-gap: 5px;
     &__player {

@@ -21,6 +21,13 @@ function createMain() {
     );
   };
 
+  self.setPlayers = (arrPlayers) => {
+    self.removeAllPlayers();
+    arrPlayers.forEach((player) => {
+      self.addPlayer(player);
+    });
+  };
+
   window.managers = window.managers || {};
   window.managers.MM = self;
 

@@ -118,10 +118,12 @@
 <script>
 import MM from '@/manager/MainManager';
 import SM from '@/manager/StorageManager';
+import LM from '@/manager/LogManager';
 import Teams from '@/components/Teams.vue';
 import CRM from '@/manager/CurrentRoundManager';
 import TeamManager from '@/manager/TeamManager';
 import _ from 'lodash';
+import { onMounted } from '@vue/runtime-core';
 
 export default {
   name: 'App',
@@ -139,6 +141,7 @@ export default {
 
       MM.players.forEach((player) => player.distance++);
       _.union(CRM.teamA, CRM.teamB).forEach((player) => (player.distance = 0));
+      _.union(CRM.teamA, CRM.teamB).forEach((player) => player.wins++);
       CRM.clearTeam(eOpposingTeam[team]);
       SM.savePlayers('latest', MM.players);
     }

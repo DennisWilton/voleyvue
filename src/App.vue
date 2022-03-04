@@ -18,6 +18,10 @@ body {
   touch-action: manipulation;
 }
 
+html {
+  overscroll-behavior-y: contain;
+}
+
 #app {
   min-height: 100vh;
   background: #222;

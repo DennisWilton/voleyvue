@@ -7,8 +7,9 @@ export default function createPlayer() {
 
   self.id = v4();
   self.name = 'Sem nome';
-  self.distance = ref(_.random(1, 6));
+  self.distance = ref(1);
   self.skill = ref(5);
+  self.wins = ref(0);
 
   self.incDistance = function () {
     self.distance.value++;
